@@ -482,3 +482,13 @@ $RECYCLE.BIN/
 *.swp
 
 .vscode/
+
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
+
+# SQLite temporary and journal files
+*.db-shm
+*.db-wal
+*.db-journal

@@ -1,22 +1,38 @@
+using Microsoft.EntityFrameworkCore;
+using PatientPortal.Web.Data;
 using PatientPortal.Web.Models;
 
 namespace PatientPortal.Web.Services;
 
 public interface IPatientService
 {
-    Task<List<Patient>> SearchPatientsAsync(string query);
-    Task<Patient?> GetPatientDetailsAsync(int patientId);
+    Task<List<Patient>> SearchPatients(string query, CancellationToken cancellationToken = default);
+    Task<Patient?> GetPatientDetails(int patientId, CancellationToken cancellationToken = default);
 }
 
-public class PatientService : IPatientService
+public class PatientService(PatientPortalContext dbContext) : IPatientService
 {
-    public Task<Patient?> GetPatientDetailsAsync(int patientId)
+    public async Task<Patient?> GetPatientDetails(int patientId, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        return await dbContext.Patients
+            .Include(p => p.Allergies)
+            .Include(p => p.Medications)
+            .Include(p => p.Documents)
+            .AsNoTracking()
+            .SingleOrDefaultAsync(p => p.PatientId == patientId, cancellationToken);
     }
 
-    public Task<List<Patient>> SearchPatientsAsync(string query)
-    {
-        throw new NotImplementedException();
+    public async Task<List<Patient>> SearchPatients(string query, CancellationToken cancellationToken = default)
+    {        
+        if (string.IsNullOrWhiteSpace(query))
+            return [];
+
+        return await dbContext.Patients
+            .Where(p => p.FirstName.Contains(query)
+                || p.LastName.Contains(query)
+                || p.MRN.Contains(query))
+            .Take(50)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 }

@@ -6,12 +6,13 @@ namespace PatientPortal.Web.Services;
 
 public interface IPatientService
 {
+    Task<Patient?> GetPatientDetails(int patientId, CancellationToken cancellationToken = default);
+    Task UpdatePatient(Patient patient, CancellationToken cancellationToken = default);
     Task<(List<Patient> Patients, int TotalCount)> SearchPatients(
         string query,
         int pageNumber = 1,
         int pageSize = 10,
         CancellationToken cancellationToken = default);
-    Task<Patient?> GetPatientDetails(int patientId, CancellationToken cancellationToken = default);
     Task AddDocumentAsync(
         int patientId,
         string fileName,
@@ -85,6 +86,12 @@ public class PatientService(PatientPortalContext dbContext) : IPatientService
         };
 
         await dbContext.Documents.AddAsync(document, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task UpdatePatient(Patient patient, CancellationToken cancellationToken = default)
+    {
+        dbContext.Patients.Update(patient);
         await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

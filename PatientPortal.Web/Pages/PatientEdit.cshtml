@@ -1,0 +1,77 @@
+﻿@page "{id:int}"
+@model PatientPortal.Web.Pages.PatientEditModel
+@{
+    ViewData["Title"] = "Edit Patient Demographics";
+}
+
+<div class="mb-6">
+    <a asp-page="/PatientDetails" asp-route-id="@Model.Id" class="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">&larr; Back to Patient Details</a>
+</div>
+
+<div class="bg-white p-8 rounded-lg shadow-sm border border-slate-200 max-w-2xl mx-auto">
+    <h2 class="text-xl font-bold text-slate-900 mb-6">Edit Patient Demographics</h2>
+
+    <form method="post" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">First Name</label>
+                <input asp-for="PatientRecord.FirstName" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Last Name</label>
+                <input asp-for="PatientRecord.LastName" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">MRN</label>
+                <input asp-for="PatientRecord.MRN" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Date of Birth</label>
+                <input asp-for="PatientRecord.DOB" type="date" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Gender</label>
+                <select asp-for="PatientRecord.Gender" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Phone Number</label>
+                <input asp-for="PatientRecord.PhoneNumber" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+        </div>
+
+        <div>
+            <label class="block text-xs font-medium text-slate-700 mb-1">Address Line 1</label>
+            <input asp-for="PatientRecord.AddressLine1" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">City</label>
+                <input asp-for="PatientRecord.City" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">State</label>
+                <input asp-for="PatientRecord.State" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Zip Code</label>
+                <input asp-for="PatientRecord.ZipCode" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+        </div>
+
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+            <a asp-page="/PatientDetails" asp-route-id="@Model.Id" class="px-4 py-2 border border-slate-300 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-50">Cancel</a>
+            <button type="submit" class="bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 px-6 rounded-md text-sm transition-colors">Save Changes</button>
+        </div>
+    </form>
+</div>

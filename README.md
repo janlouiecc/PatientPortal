@@ -47,7 +47,7 @@ The app creates its SQLite database and seeds sample patient records when it sta
 - Visual Studio 2026
 
 ## Notes
-The Razor Page models interact directly with the service layer on this project to keep things straightforward and avoid having a lot of boilerplate. In a production application, I'd use DTOs and separate validation. I skipped them here to keep the code lean, fast to build, and easy to review.
+The Razor Page models interact directly with the service layer on this project to keep things straightforward and avoid having a lot of boilerplate. Additionally, the application is configured to run strictly over HTTP to simplify local testing and eliminate any potential SSL/TLS local certificate issues. In a production application, I'd use DTOs, separate validation and enforce HTTPS. I skipped them here to keep the code lean, fast to build, and easy to read.
 
 ### AI Use
 I used a bit of AI to speed up the tedious parts of building this. Specifically, I used it to help map out the Tailwind CSS styles on the frontend and to generate the mock C# seed data for the database. 

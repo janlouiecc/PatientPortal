@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using PatientPortal.Web.Models;
 using PatientPortal.Web.Services;
 
 namespace PatientPortal.Web.Pages;
@@ -9,13 +10,19 @@ public class PatientDetailsModel(IPatientService patientService, IWebHostEnviron
     [BindProperty(SupportsGet = true)]
     public int Id { get; set; }
 
-    public Models.Patient? PatientRecord { get; set; }
+    public Patient? PatientRecord { get; set; }
 
     [BindProperty]
     public IFormFile? UploadFile { get; set; }
 
     [BindProperty]
     public string DocumentType { get; set; } = "Miscellaneous";
+
+    [BindProperty]
+    public Allergy NewAllergy { get; set; } = new();
+
+    [BindProperty]
+    public Medication NewMedication { get; set; } = new();
 
     public async Task<IActionResult> OnGetAsync(int id, CancellationToken cancellationToken)
     {
@@ -41,13 +48,37 @@ public class PatientDetailsModel(IPatientService patientService, IWebHostEnviron
             await UploadFile.CopyToAsync(fileStream, cancellationToken);
 
             await patientService.AddDocumentAsync(
-                id, 
-                UploadFile.FileName, 
-                $"/uploads/{uniqueFileName}", 
-                DocumentType, 
+                id,
+                UploadFile.FileName,
+                $"/uploads/{uniqueFileName}",
+                DocumentType,
                 cancellationToken);
         }
 
+        return RedirectToPage(new { id });
+    }
+
+    public async Task<IActionResult> OnPostAddAllergyAsync(int id, CancellationToken cancellationToken)
+    {
+        await patientService.AddAllergy(id, NewAllergy, cancellationToken);
+        return RedirectToPage(new { id });
+    }
+
+    public async Task<IActionResult> OnPostRemoveAllergyAsync(int id, int allergyId, CancellationToken cancellationToken)
+    {
+        await patientService.RemoveAllergy(allergyId, cancellationToken);
+        return RedirectToPage(new { id });
+    }
+
+    public async Task<IActionResult> OnPostAddMedicationAsync(int id, CancellationToken cancellationToken)
+    {
+        await patientService.AddMedication(id, NewMedication, cancellationToken);
+        return RedirectToPage(new { id });
+    }
+
+    public async Task<IActionResult> OnPostRemoveMedicationAsync(int id, int medicationId, CancellationToken cancellationToken)
+    {
+        await patientService.RemoveMedication(medicationId, cancellationToken);
         return RedirectToPage(new { id });
     }
 }

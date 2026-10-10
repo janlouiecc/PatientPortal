@@ -8,6 +8,10 @@ public interface IPatientService
 {
     Task<Patient?> GetPatientDetails(int patientId, CancellationToken cancellationToken = default);
     Task UpdatePatient(Patient patient, CancellationToken cancellationToken = default);
+    Task AddAllergy(int patientId, Allergy allergy, CancellationToken cancellationToken = default);
+    Task RemoveAllergy(int allergyId, CancellationToken cancellationToken = default);
+    Task AddMedication(int patientId, Medication medication, CancellationToken cancellationToken = default);
+    Task RemoveMedication(int medicationId, CancellationToken cancellationToken = default);
     Task<(List<Patient> Patients, int TotalCount)> SearchPatients(
         string query,
         int pageNumber = 1,
@@ -69,10 +73,10 @@ public class PatientService(PatientPortalContext dbContext) : IPatientService
     }
 
     public async Task AddDocumentAsync(
-        int patientId, 
-        string fileName, 
-        string filePath, 
-        string documentType, 
+        int patientId,
+        string fileName,
+        string filePath,
+        string documentType,
         CancellationToken cancellationToken = default)
     {
         var document = new Document
@@ -93,5 +97,47 @@ public class PatientService(PatientPortalContext dbContext) : IPatientService
     {
         dbContext.Patients.Update(patient);
         await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task AddAllergy(int patientId, Allergy allergy, CancellationToken cancellationToken = default)
+    {
+        allergy.PatientId = patientId;
+        allergy.RecordedDate = DateTime.Now;
+        await dbContext.Allergies.AddAsync(allergy, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RemoveAllergy(int allergyId, CancellationToken cancellationToken = default)
+    {
+        var allergy = await dbContext.Allergies.FirstOrDefaultAsync(a => 
+            a.AllergyId == allergyId, 
+            cancellationToken: cancellationToken);
+
+        if (allergy is not null)
+        {
+            dbContext.Allergies.Remove(allergy);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    public async Task AddMedication(int patientId, Medication medication, CancellationToken cancellationToken = default)
+    {
+        medication.PatientId = patientId;
+        medication.StartDate = DateTime.Now;
+        await dbContext.Medications.AddAsync(medication, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task RemoveMedication(int medicationId, CancellationToken cancellationToken = default)
+    {
+        var medication = await dbContext.Medications.FirstOrDefaultAsync(m => 
+            m.MedicationId == medicationId, 
+            cancellationToken: cancellationToken);
+            
+        if (medication is not null)
+        {
+            dbContext.Medications.Remove(medication);
+            await dbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 }

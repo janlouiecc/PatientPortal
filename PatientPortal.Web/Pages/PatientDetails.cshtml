@@ -31,35 +31,60 @@
 
     <div class="mb-8">
         <h3 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Allergies</h3>
-        @if (Model.PatientRecord.Allergies.Any())
+        @if (Model.PatientRecord!.Allergies.Any())
         {
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 @foreach(var allergy in Model.PatientRecord.Allergies)
                 {
-                    <div class="p-4 bg-red-50 border border-red-100 rounded-md">
-                        <div class="font-semibold text-red-900">@allergy.AllergyName</div>
-                        <div class="text-sm text-red-700 mt-1">Severity: @allergy.Severity | Status: @allergy.Status</div>
+                    <div class="p-4 bg-red-50 border border-red-100 rounded-md flex justify-between items-start">
+                        <div>
+                            <div class="font-semibold text-red-900">@allergy.AllergyName</div>
+                            <div class="text-sm text-red-700 mt-1">Severity: @allergy.Severity | Status: @allergy.Status</div>
+                        </div>
+                        <form method="post" asp-page-handler="RemoveAllergy" asp-route-id="@Model.Id" asp-route-allergyId="@allergy.AllergyId">
+                            <button type="submit" class="text-red-500 hover:text-red-800 text-sm font-medium cursor-pointer">Remove</button>
+                        </form>
                     </div>
                 }
             </div>
         }
         else
         {
-            <p class="text-sm text-slate-500">No known allergies recorded.</p>
+            <p class="text-sm text-slate-500 mb-4">No known allergies recorded.</p>
         }
+
+        <form method="post" asp-page-handler="AddAllergy" asp-route-id="@Model.Id" class="bg-slate-50 p-4 border border-slate-200 rounded-md flex flex-col sm:flex-row gap-3 items-end">
+            <div class="flex-1 w-full">
+                <label class="block text-xs font-medium text-slate-700 mb-1">Allergy Name</label>
+                <input asp-for="NewAllergy.AllergyName" placeholder="e.g., Penicillin" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" required />
+            </div>
+            <div class="w-full sm:w-48">
+                <label class="block text-xs font-medium text-slate-700 mb-1">Severity</label>
+                <select asp-for="NewAllergy.Severity" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white">
+                    <option value="Mild">Mild</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="Severe">Severe</option>
+                </select>
+            </div>
+            <input type="hidden" asp-for="NewAllergy.Status" value="Active" />
+            <button type="submit" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 px-5 rounded-md text-sm transition-colors cursor-pointer">
+                Add Allergy
+            </button>
+        </form>
     </div>
 
-    <div>
+    <div class="mb-8">
         <h3 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Medications</h3>
-        @if (Model.PatientRecord.Medications.Any())
+        @if (Model.PatientRecord!.Medications.Any())
         {
-            <div class="overflow-x-auto border border-slate-200 rounded-md">
+            <div class="overflow-x-auto border border-slate-200 rounded-md mb-4">
                 <table class="min-w-full divide-y divide-slate-200">
                     <thead class="bg-slate-50">
                         <tr>
                             <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Medication</th>
                             <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Instructions</th>
                             <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Provider</th>
+                            <th scope="col" class="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Action</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-slate-200">
@@ -69,6 +94,11 @@
                                 <td class="px-4 py-3 text-sm font-medium text-slate-900">@med.MedicationName @med.Strength</td>
                                 <td class="px-4 py-3 text-sm text-slate-600">Take @med.DosageInstructions, @med.Frequency @med.Route</td>
                                 <td class="px-4 py-3 text-sm text-slate-600">@med.PrescribingProvider</td>
+                                <td class="px-4 py-3 text-sm text-right">
+                                    <form method="post" asp-page-handler="RemoveMedication" asp-route-id="@Model.Id" asp-route-medicationId="@med.MedicationId">
+                                        <button type="submit" class="text-red-600 hover:text-red-900 font-medium cursor-pointer">Remove</button>
+                                    </form>
+                                </td>
                             </tr>
                         }
                     </tbody>
@@ -77,8 +107,33 @@
         }
         else
         {
-            <p class="text-sm text-slate-500">No active medications recorded.</p>
+            <p class="text-sm text-slate-500 mb-4">No active medications recorded.</p>
         }
+
+        <form method="post" asp-page-handler="AddMedication" asp-route-id="@Model.Id" class="bg-slate-50 p-4 border border-slate-200 rounded-md grid grid-cols-1 sm:grid-cols-5 gap-3 items-end">
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Medication Name</label>
+                <input asp-for="NewMedication.MedicationName" placeholder="e.g., Lisinopril" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" required />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Strength</label>
+                <input asp-for="NewMedication.Strength" placeholder="e.g., 10mg" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Dosage / Frequency</label>
+                <input asp-for="NewMedication.Frequency" placeholder="e.g., Daily" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-700 mb-1">Provider</label>
+                <input asp-for="NewMedication.PrescribingProvider" placeholder="e.g., Dr. Smith" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm bg-white" />
+            </div>
+            <input type="hidden" asp-for="NewMedication.DosageInstructions" value="1 tablet" />
+            <input type="hidden" asp-for="NewMedication.Route" value="Oral" />
+            <input type="hidden" asp-for="NewMedication.Status" value="Active" />
+            <button type="submit" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 px-4 rounded-md text-sm transition-colors cursor-pointer">
+                Add Medication
+            </button>
+        </form>
     </div>
 
     <div class="mt-8">

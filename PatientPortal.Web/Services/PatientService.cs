@@ -6,8 +6,8 @@ namespace PatientPortal.Web.Services;
 
 public interface IPatientService
 {
-    Task<List<Patient>> SearchPatients(string query, CancellationToken cancellationToken = default);
-    Task<Patient?> GetPatientDetails(int patientId, CancellationToken cancellationToken = default);
+    Task<(List<Patient> Patients, int TotalCount)> SearchPatients(string query, int pageNumber = 1, int pageSize = 10, CancellationToken ct = default);
+    Task<Patient?> GetPatientDetails(int patientId, CancellationToken ct = default);
 }
 
 public class PatientService(PatientPortalContext dbContext) : IPatientService
@@ -22,17 +22,48 @@ public class PatientService(PatientPortalContext dbContext) : IPatientService
             .SingleOrDefaultAsync(p => p.PatientId == patientId, cancellationToken);
     }
 
-    public async Task<List<Patient>> SearchPatients(string query, CancellationToken cancellationToken = default)
-    {        
+    public async Task<(List<Patient> Patients, int TotalCount)> SearchPatients(
+        string query, 
+        int pageNumber = 1, 
+        int pageSize = 10, 
+        CancellationToken cancellationToken = default)
+    {
         if (string.IsNullOrWhiteSpace(query))
-            return [];
+            return ([], 0);
 
-        return await dbContext.Patients
-            .Where(p => p.FirstName.Contains(query)
-                || p.LastName.Contains(query)
-                || p.MRN.Contains(query))
-            .Take(50)
+        var baseQuery = dbContext.Patients.AsQueryable();
+        var pattern = $"%{query}%";
+
+        if (int.TryParse(query, out var year) && query.Length == 4)
+        {
+            baseQuery = baseQuery.Where(p => p.DOB.Year == year ||
+                                        p.MRN.Contains(query) ||
+                                        EF.Functions.Like(p.FirstName, pattern) ||
+                                        EF.Functions.Like(p.LastName, pattern));
+        }
+        else if (DateTime.TryParse(query, out var searchDate))
+        {
+            baseQuery = baseQuery.Where(p => p.DOB.Date == searchDate.Date ||
+                                        p.MRN.Contains(query) ||
+                                        EF.Functions.Like(p.FirstName, pattern) ||
+                                        EF.Functions.Like(p.LastName, pattern));
+        }
+        else
+        {
+            baseQuery = baseQuery.Where(p => EF.Functions.Like(p.FirstName, pattern) ||
+                                        EF.Functions.Like(p.LastName, pattern) ||
+                                        EF.Functions.Like(p.MRN, pattern));
+        }
+
+        int totalCount = await baseQuery.CountAsync(cancellationToken);
+
+        var patients = await baseQuery
+            .OrderBy(p => p.LastName)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
+
+        return (patients, totalCount);
     }
 }

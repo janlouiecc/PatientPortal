@@ -7,11 +7,17 @@ namespace PatientPortal.Web.Services;
 public interface IPatientService
 {
     Task<(List<Patient> Patients, int TotalCount)> SearchPatients(
-        string query, 
-        int pageNumber = 1, 
-        int pageSize = 10, 
+        string query,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken ct = default);
     Task<Patient?> GetPatientDetails(int patientId, CancellationToken ct = default);
+    Task AddDocumentAsync(
+        int patientId,
+        string fileName,
+        string filePath,
+        string documentType,
+        CancellationToken ct = default);
 }
 
 public class PatientService(PatientPortalContext dbContext) : IPatientService
@@ -27,9 +33,9 @@ public class PatientService(PatientPortalContext dbContext) : IPatientService
     }
 
     public async Task<(List<Patient> Patients, int TotalCount)> SearchPatients(
-        string query, 
-        int pageNumber = 1, 
-        int pageSize = 10, 
+        string query,
+        int pageNumber = 1,
+        int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(query))
@@ -59,5 +65,26 @@ public class PatientService(PatientPortalContext dbContext) : IPatientService
             .ToListAsync(cancellationToken);
 
         return (patients, totalCount);
+    }
+
+    public async Task AddDocumentAsync(
+        int patientId, 
+        string fileName, 
+        string filePath, 
+        string documentType, 
+        CancellationToken cancellationToken = default)
+    {
+        var document = new Document
+        {
+            PatientId = patientId,
+            DocumentName = fileName,
+            DocumentType = documentType,
+            DocumentDate = DateTime.Now,
+            FilePath = filePath,
+            UploadedDate = DateTime.Now
+        };
+
+        await dbContext.Documents.AddAsync(document, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
     }
 }

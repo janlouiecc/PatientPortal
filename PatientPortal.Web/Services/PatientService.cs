@@ -6,7 +6,11 @@ namespace PatientPortal.Web.Services;
 
 public interface IPatientService
 {
-    Task<(List<Patient> Patients, int TotalCount)> SearchPatients(string query, int pageNumber = 1, int pageSize = 10, CancellationToken ct = default);
+    Task<(List<Patient> Patients, int TotalCount)> SearchPatients(
+        string query, 
+        int pageNumber = 1, 
+        int pageSize = 10, 
+        CancellationToken ct = default);
     Task<Patient?> GetPatientDetails(int patientId, CancellationToken ct = default);
 }
 

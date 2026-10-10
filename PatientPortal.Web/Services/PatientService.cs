@@ -33,27 +33,17 @@ public class PatientService(PatientPortalContext dbContext) : IPatientService
 
         var baseQuery = dbContext.Patients.AsQueryable();
         var pattern = $"%{query}%";
+        var isYear = int.TryParse(query, out var year) && query.Length == 4;
+        var isDate = DateTime.TryParse(query, out var searchDate);
 
-        if (int.TryParse(query, out var year) && query.Length == 4)
-        {
-            baseQuery = baseQuery.Where(p => p.DOB.Year == year ||
-                                        p.MRN.Contains(query) ||
-                                        EF.Functions.Like(p.FirstName, pattern) ||
-                                        EF.Functions.Like(p.LastName, pattern));
-        }
-        else if (DateTime.TryParse(query, out var searchDate))
-        {
-            baseQuery = baseQuery.Where(p => p.DOB.Date == searchDate.Date ||
-                                        p.MRN.Contains(query) ||
-                                        EF.Functions.Like(p.FirstName, pattern) ||
-                                        EF.Functions.Like(p.LastName, pattern));
-        }
-        else
-        {
-            baseQuery = baseQuery.Where(p => EF.Functions.Like(p.FirstName, pattern) ||
-                                        EF.Functions.Like(p.LastName, pattern) ||
-                                        EF.Functions.Like(p.MRN, pattern));
-        }
+        baseQuery = baseQuery.Where(p =>
+            (isYear && p.DOB.Year == year) ||
+            (isDate && p.DOB.Date == searchDate.Date) ||
+            p.MRN.Contains(query) ||
+            EF.Functions.Like(p.FirstName, pattern) ||
+            EF.Functions.Like(p.LastName, pattern) ||
+            EF.Functions.Like(p.MRN, pattern)
+        );
 
         int totalCount = await baseQuery.CountAsync(cancellationToken);
 

@@ -10,14 +10,14 @@ public interface IPatientService
         string query,
         int pageNumber = 1,
         int pageSize = 10,
-        CancellationToken ct = default);
-    Task<Patient?> GetPatientDetails(int patientId, CancellationToken ct = default);
+        CancellationToken cancellationToken = default);
+    Task<Patient?> GetPatientDetails(int patientId, CancellationToken cancellationToken = default);
     Task AddDocumentAsync(
         int patientId,
         string fileName,
         string filePath,
         string documentType,
-        CancellationToken ct = default);
+        CancellationToken cancellationToken = default);
 }
 
 public class PatientService(PatientPortalContext dbContext) : IPatientService

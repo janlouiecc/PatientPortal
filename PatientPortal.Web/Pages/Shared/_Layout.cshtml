@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="google" content="notranslate" />
+    <title>@ViewData["Title"] | Patient Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased">
+    <nav class="bg-slate-900 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex-shrink-0 flex items-center text-white text-lg font-semibold tracking-wide">
+                    <a href="/">Patient Portal</a>
+                </div>
+                <div class="flex items-center space-x-6 text-slate-300 text-sm">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a href="/Search" class="hover:text-white transition-colors">Search</a>
+                        <span class="text-slate-600">|</span>
+                        <span class="text-slate-400">@User.Identity.Name</span>
+                        <a href="/Logout" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-md transition-colors">Sign Out</a>
+                    }
+                    else
+                    {
+                        <a href="/Login" class="inline-flex items-center hover:opacity-95 transition-opacity">
+                            <img src="~/images/google_logo.png" alt="Sign in with Google" class="h-9 w-auto" />
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        @RenderBody()
+    </main>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

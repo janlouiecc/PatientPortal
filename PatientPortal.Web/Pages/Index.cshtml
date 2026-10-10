@@ -1,0 +1,19 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="max-w-3xl mx-auto text-center mt-20">
+    <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight mb-4">Patient Portal</h1>    
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <a href="/Search" class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-8 rounded-md shadow-sm transition-colors">Access Patient Records</a>
+    }
+    else
+    {
+        <a href="/Login" class="inline-flex items-center hover:opacity-95 transition-opacity shadow-sm rounded-md">
+            <img src="~/images/google_logo.png" alt="Sign in with Google" class="h-11 w-auto rounded-md" />
+        </a>
+    }
+</div>

@@ -1,0 +1,105 @@
+@page "{id:int}"
+@model PatientPortal.Web.Pages.PatientDetailsModel
+@{
+    ViewData["Title"] = "Patient Details";
+}
+
+<div class="mb-6 flex justify-between items-center">
+    <a asp-page="/Search" class="text-slate-600 hover:text-slate-900 text-sm font-medium transition-colors">&larr; Return to Search</a>
+    <button onclick="exportToPdf()" class="bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-sm font-medium py-2 px-4 rounded-md transition-colors">
+        Save page as PDF
+    </button>
+</div>
+
+<div id="patient-details" class="bg-white p-8 rounded-lg shadow-sm border border-slate-200">
+    
+    <div class="border-b border-slate-200 pb-6 mb-8">
+        <h2 class="text-2xl font-bold text-slate-900">@Model.PatientRecord!.LastName, @Model.PatientRecord.FirstName</h2>
+        <div class="mt-2 text-sm text-slate-600 grid grid-cols-2 gap-2">
+            <div><span class="font-medium">MRN:</span> @Model.PatientRecord.MRN</div>
+            <div><span class="font-medium">DOB:</span> @Model.PatientRecord.DOB.ToString("MMM dd, yyyy")</div>
+            <div><span class="font-medium">Gender:</span> @Model.PatientRecord.Gender</div>
+            <div><span class="font-medium">Phone:</span> @Model.PatientRecord.PhoneNumber</div>
+            <div class="col-span-2"><span class="font-medium">Address:</span> @Model.PatientRecord.AddressLine1, @Model.PatientRecord.City, @Model.PatientRecord.State @Model.PatientRecord.ZipCode</div>
+        </div>
+    </div>
+
+    <div class="mb-8">
+        <h3 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Allergies</h3>
+        @if (Model.PatientRecord.Allergies.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                @foreach(var allergy in Model.PatientRecord.Allergies)
+                {
+                    <div class="p-4 bg-red-50 border border-red-100 rounded-md">
+                        <div class="font-semibold text-red-900">@allergy.AllergyName</div>
+                        <div class="text-sm text-red-700 mt-1">Severity: @allergy.Severity | Status: @allergy.Status</div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <p class="text-sm text-slate-500">No known allergies recorded.</p>
+        }
+    </div>
+
+    <div>
+        <h3 class="text-lg font-semibold text-slate-900 mb-4 border-b border-slate-100 pb-2">Active Medications</h3>
+        @if (Model.PatientRecord.Medications.Any())
+        {
+            <div class="overflow-x-auto border border-slate-200 rounded-md">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Medication</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Instructions</th>
+                            <th scope="col" class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Provider</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-200">
+                        @foreach(var med in Model.PatientRecord.Medications)
+                        {
+                            <tr>
+                                <td class="px-4 py-3 text-sm font-medium text-slate-900">@med.MedicationName @med.Strength</td>
+                                <td class="px-4 py-3 text-sm text-slate-600">Take @med.DosageInstructions, @med.Frequency @med.Route</td>
+                                <td class="px-4 py-3 text-sm text-slate-600">@med.PrescribingProvider</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-sm text-slate-500">No active medications recorded.</p>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function exportToPdf() {
+            const element = document.getElementById('patient-details');
+            
+            const opt = {
+                margin: 0.5,
+                filename: 'Record_@(Model.PatientRecord!.MRN).pdf',
+                image: { 
+                    type: 'jpeg', 
+                    quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true 
+                },
+                jsPDF: { 
+                    unit: 'in', 
+                    format: 'letter', 
+                    orientation: 'portrait' 
+                }
+            };
+
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+}
